@@ -1,0 +1,98 @@
+from base64 import urlsafe_b64encode
+from functools import cached_property, lru_cache 
+from pathlib import Path
+from typing import Any, Literal, get_origin
+from urllib.parse import urlparse
+
+from cryptography.fernet import Fernet
+from pydantic import BaseModel, Field, HttpUrl, PostgresDsn, RedisDsn, SecretStr
+from pydantic.fields import FieldInfo
+from pydantic_settings import (
+    BaseSettings,
+    EnvSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
+
+def _parse_list(value: str) -> list[str]:
+    return [str(x).strip() for x in value.split(",")]
+
+def _fix_postgres_url(url: str, /, *, scheme: str = "postgresql+asyncpg") -> str:
+    return urlparse(url)._replace(scheme=scheme).geturl()
+
+class _EnvSource(EnvSettingsSource):
+    def prepare_field_value(
+        self,
+        field_name: str,
+        field: FieldInfo,
+        value: Any,
+        value_is_complex: bool
+    ) -> Any:
+        if get_origin(field.annotation) is list:
+            return _parse_list(value)
+        if field_name == "database_url":
+            return PostgresDsn(_fix_postgres_url(value))
+        return super().prepare_field_value(field_name, field, value, value_is_complex)
+    
+    
+class Settings(BaseSettings):
+    allows_origins: list[str]
+    database_url: PostgresDsn
+    project_root: Path = Path(__file__).parent.parent.parent.resolve()
+    trusted_host: str
+    static: Path = Path("static")
+    secret_key: SecretStr
+    
+    pool_max_overflow: int = 10
+    pool_size: int = 5
+    pool_timeout: int = 30
+    pool_recycle: int = -1 
+    
+    @cached_property
+    def fernet(self) -> Fernet:
+        return Fernet(urlsafe_b64encode(self.secret_key.get_secret_value().encode().ljust(32)[:32]))
+    
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+        
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (_EnvSource(settings_cls), )
+    
+    @staticmethod
+    def _clean_path(path: str | None, /) -> str:
+        if path is None:
+            path = ""
+        return path[1:] if path.startswith("/") else path
+    def build_url(
+        self,
+        *,
+        path: str | None = None,
+        is_static : bool = True
+    ) -> HttpUrl:
+        path = self._clean_path(path)
+        if is_static is True:
+            path =  f"{self.static}/{path}" if path else f"{self.static}"
+        return HttpUrl.build(
+            scheme="https",
+            host=self.trusted_host,
+            path=path
+        )
+        
+settings = Settings()
+
+
+class FeatureFlags(BaseModel):
+    enable_https_redirect: bool = False
+    send_emails: bool = False
+    activate_users: bool = False
+    enable_sentry: bool = False
+    count_api_requests: bool = False
+    
+
+feature_flags = FeatureFlags()
