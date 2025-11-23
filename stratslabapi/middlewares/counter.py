@@ -1,5 +1,4 @@
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.types import ASGIApp
 from starlette.responses import Response
 from starlette.requests import Request
 
