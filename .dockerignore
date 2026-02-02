@@ -73,3 +73,7 @@ Dockerfile
 # Development scripts
 scripts/
 specs/
+
+# Note: If critical operational scripts are placed under scripts/, add explicit exceptions.
+# Ensure a docker entrypoint script is not excluded if added in the future.
+!scripts/docker-entrypoint.sh
