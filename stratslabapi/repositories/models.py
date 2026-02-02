@@ -59,7 +59,7 @@ class RequestCounterModel(Base):
     )
     
     @classmethod
-    async def count_url(cls, session: AsyncSession, url: str, /) -> None:
+    async def count_url(cls, url: str, /) -> None:
         statement: Insert = (
             insert(cls)
             .values({"url": url})
@@ -67,9 +67,8 @@ class RequestCounterModel(Base):
                 constraint="request_counter_url_key",
                 set_={"counter": cls.counter + 1}
             )
-        )    
+        )
 
-        session: AsyncSession 
         async with session_manager.session() as session:
             await session.execute(statement)
             await session.commit()
@@ -81,10 +80,9 @@ class RequestCounterModel(Base):
             func.coalesce(
                 func.sum(
                     RequestCounterModel.counter), 0))
-        session: AsyncSession
         async with session_manager.session() as session:
-            result; Result = await session.execute(statement)
-            
+            result: Result = await session.execute(statement)
+
         return result.scalar()
     @classmethod
     @cached(ttl=_REQUESTS_TTL, key_builder=_cache_requests_since_builder)
