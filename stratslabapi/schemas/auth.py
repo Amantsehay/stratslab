@@ -9,13 +9,13 @@ class UserCreate(BaseModel):
     """Schema for creating a new user"""
     email: EmailStr
     username: str = Field(min_length=3, max_length=100, pattern=r'^[A-Za-z0-9_.-]+$')
-    password: SecretStr = Field(min_length=8)
+    password: SecretStr = Field(min_length=8, max_length=128)
 
 
 class UserLogin(BaseModel):
     """Schema for user login"""
     email: EmailStr
-    password: SecretStr
+    password: SecretStr = Field(min_length=8, max_length=128)
 
 
 class UserResponse(BaseModel):
