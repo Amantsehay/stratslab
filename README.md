@@ -66,11 +66,60 @@ StratsLab is built using a microservices architecture with the following core co
 
 - Python 3.12 or higher
 - Poetry (Python package manager)
-- PostgreSQL database
 - Docker (optional, for containerization)
 - Kubernetes cluster (for production deployment)
 
-### Setup
+**Note**: For local development, you can use either local PostgreSQL or run it in Docker. The containerized setup includes PostgreSQL automatically.
+
+### Quick Start with Docker
+
+The fastest way to get started is with Docker and Docker Compose:
+
+```bash
+# Clone the repository
+git clone https://github.com/Amantsehay/stratslab.git
+cd stratslab
+
+# Copy environment configuration
+cp .env.docker.example .env
+
+# Start all services (database + API)
+./scripts/docker.sh up
+```
+
+The API will be available at `http://localhost:8000` with Swagger docs at `http://localhost:8000/docs`.
+
+### Docker Helper Commands
+
+Use the convenient helper script for common operations:
+
+```bash
+# Start containers in foreground (see logs)
+./scripts/docker.sh up
+
+# Start containers in background
+./scripts/docker.sh up-d
+
+# View logs
+./scripts/docker.sh logs        # All services
+./scripts/docker.sh logs-api    # API only
+./scripts/docker.sh logs-db     # PostgreSQL only
+
+# Execute commands in containers
+./scripts/docker.sh exec-api poetry run pytest tests/
+./scripts/docker.sh exec-db psql -U postgres -d stratslab_dev
+
+# Stop containers
+./scripts/docker.sh down
+
+# Rebuild containers
+./scripts/docker.sh rebuild
+
+# View full list of commands
+./scripts/docker.sh help
+```
+
+### Traditional Local Setup
 
 1. **Clone the repository**
    ```bash
@@ -162,10 +211,58 @@ poetry run mypy stratslabapi
 
 ## 🐳 Docker & Kubernetes Deployment
 
+### Local Development with Docker Compose
+
+The project includes a production-ready `docker-compose.yml` that orchestrates:
+
+- **API Service**: FastAPI application with hot-reload for development
+- **PostgreSQL**: Database with persistent volumes
+- **Health Checks**: Automatic service availability checks
+- **Networking**: Services communicate via Docker internal network
+
+**Features:**
+- Code hot-reload: Changes reflect immediately without container restart
+- Database persistence: Data survives container restarts
+- Volume management: Automatic migrations on startup
+- Service scalability: Easy to add new microservices (AI, backtesting) following the same pattern
+
+**Configuration:**
+- Copy `.env.docker.example` to `.env` and customize values
+- Key settings: DATABASE_URL, SECRET_KEY, ALLOWS_ORIGINS
+- See `.env.docker.example` for all available options
+
 ### Building Docker Image
 
+For standalone image builds:
+
 ```bash
-docker build -t stratslab:latest .
+docker build -t stratslab-api:latest .
+```
+
+### Extending with Additional Services
+
+The Docker Compose setup is designed to easily accommodate new microservices. To add the AI Service:
+
+```yaml
+# In docker-compose.yml
+ai-service:
+  build:
+    context: ./ai-service
+    dockerfile: Dockerfile
+  depends_on:
+    postgres:
+      condition: service_healthy
+  environment:
+    DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/stratslab_dev
+    SECRET_KEY: ${SECRET_KEY}
+  networks:
+    - stratslab-network
+  restart: unless-stopped
+```
+
+Then start all services:
+```bash
+./scripts/docker.sh up
 ```
 
 ### Kubernetes Deployment
