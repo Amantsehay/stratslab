@@ -42,7 +42,6 @@ docs/_build/
 site/
 
 # Testing
-tests/
 .tox/
 
 # Temporary files
