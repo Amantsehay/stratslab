@@ -61,7 +61,7 @@ class StratslabAPI(FastAPI):
         # Initialize database connection pool on startup
         session_manager.initialize()
         yield 
-        # Clean up database connections on shutdown
+        # Close database connections on shutdown
         if session_manager.engine is not None:
             await session_manager.close()
     
