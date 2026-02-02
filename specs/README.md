@@ -1,6 +1,6 @@
 # Specifications & Plans
 
-This directory contains all implementation specs and plans for the StratslabAPI project. Specs serve as the single source of truth for planned work and guide implementation.
+This directory contains all implementation specs and plans for the StratsLab project. Specs serve as the single source of truth for planned work and guide implementation.
 
 ## Directory Structure
 
@@ -76,7 +76,7 @@ Each spec type has a template available in `.claude/templates/`:
 All specs follow a consistent structure:
 
 ### Metadata
-- Type (feature/chore/bug/refactor/research)
+- Type (features/chores/bugs/refactors/research)
 - Status (planning/in-progress/completed)
 - Created and updated dates
 - Agent name
