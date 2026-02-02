@@ -53,6 +53,7 @@ class StratslabAPI(FastAPI):
         kwargs.setdefault("description", self._description)
         super().__init__(**kwargs)
         self._setup_middlewares()
+        self._setup_routers()
         add_pagination(self)
         
     @asynccontextmanager
