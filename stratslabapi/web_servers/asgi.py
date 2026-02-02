@@ -24,13 +24,3 @@ def startup_event() -> None:
     """Initialize database connection pool on application startup."""
     session_manager.initialize()
 
-
-@app.get("/health", tags=["health"], include_in_schema=False)
-async def health_check() -> dict[str, str]:
-    """
-    Health check endpoint.
-
-    Returns:
-        dict: Status indication of the API and its dependencies
-    """
-    return {"status": "ok"}
