@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: stratslab-postgres
+    hostname: postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-stratslab_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    networks:
+      - stratslab-network
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stratslab-api
+    hostname: api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database configuration
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-stratslab_dev}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-stratslab_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
+      # Security
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production-this-must-be-at-least-32-chars-long}
+      TRUSTED_HOST: ${TRUSTED_HOST:-localhost}
+
+      # CORS
+      ALLOWS_ORIGINS: ${ALLOWS_ORIGINS:-http://localhost:3000,http://localhost:8000,http://127.0.0.1:3000}
+
+      # Database connection pool
+      POOL_SIZE: ${POOL_SIZE:-5}
+      POOL_MAX_OVERFLOW: ${POOL_MAX_OVERFLOW:-10}
+      POOL_TIMEOUT: ${POOL_TIMEOUT:-30}
+      POOL_RECYCLE: ${POOL_RECYCLE:--1}
+
+      # Feature flags (development defaults)
+      ENABLE_HTTPS_REDIRECT: ${ENABLE_HTTPS_REDIRECT:-false}
+      SEND_EMAILS: ${SEND_EMAILS:-false}
+      ACTIVATE_USERS: ${ACTIVATE_USERS:-false}
+      ENABLE_SENTRY: ${ENABLE_SENTRY:-false}
+      COUNT_API_REQUESTS: ${COUNT_API_REQUESTS:-false}
+
+    volumes:
+      # Bind mount for development - enables hot-reload
+      - ./stratslabapi:/app/stratslabapi
+      # Alembic migrations can be mounted here once initialized in the repo:
+      # - ./alembic:/app/alembic
+      # - ./alembic.ini:/app/alembic.ini
+
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import http.client,sys; conn=http.client.HTTPConnection('localhost',8000,timeout=5); conn.request('GET','/health'); resp=conn.getresponse(); sys.exit(0 if resp.status==200 else 1)"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+    networks:
+      - stratslab-network
+
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  stratslab-network:
+    driver: bridge
