@@ -1,0 +1,79 @@
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+.env
+.claude
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Node/Frontend (if added in future)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Documentation
+docs/_build/
+site/
+
+# Testing
+.tox/
+
+# Temporary files
+*.tmp
+*.bak
+*.log
+*.pid
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS specific
+Thumbs.db
+.DS_Store
+*.swp
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Docker related (don't include in image)
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Development scripts
+scripts/
+specs/
+
+# Note: If critical operational scripts are placed under scripts/, add explicit exceptions.
+# Ensure a docker entrypoint script is not excluded if added in the future.
+!scripts/docker-entrypoint.sh
