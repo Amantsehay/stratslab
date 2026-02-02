@@ -1,6 +1,6 @@
 # Specifications & Plans
 
-This directory contains all implementation specs and plans for the StratslabAPI project. Specs serve as the single source of truth for planned work and guide implementation.
+This directory contains all implementation specs and plans for the StratsLab project. Specs serve as the single source of truth for planned work and guide implementation.
 
 ## Directory Structure
 
