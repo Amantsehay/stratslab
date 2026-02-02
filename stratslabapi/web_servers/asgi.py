@@ -10,17 +10,10 @@ Usage:
 """
 
 from stratslabapi.apps.fastapi import StratslabAPI
-from stratslabapi.repositories.session import session_manager
 
 # Create the FastAPI application instance
 app = StratslabAPI(
     title="StratslabAPI",
     description="AI-powered trading strategy backtesting platform",
 )
-
-
-@app.on_event("startup")
-def startup_event() -> None:
-    """Initialize database connection pool on application startup."""
-    session_manager.initialize()
 
