@@ -58,7 +58,10 @@ class StratslabAPI(FastAPI):
         
     @asynccontextmanager
     async def _lifespan(self, _: Self) -> AsyncGenerator[None, Any]:
+        # Initialize database connection pool on startup
+        session_manager.initialize()
         yield 
+        # Clean up database connections on shutdown
         if session_manager.engine is not None:
             await session_manager.close()
     
