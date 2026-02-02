@@ -8,7 +8,7 @@ from stratslabapi.helpers.pydantic import BaseModel
 class UserCreate(BaseModel):
     """Schema for creating a new user"""
     email: EmailStr
-    username: str = Field(min_length=3, max_length=100)
+    username: str = Field(min_length=3, max_length=100, pattern=r'^[A-Za-z0-9_.-]+$')
     password: SecretStr = Field(min_length=8)
 
 
