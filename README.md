@@ -1,92 +1,215 @@
-# stratslab
+# StratsLab
 
-AI-powered trading strategy backtesting platform with distributed services for strategy analysis, AI-driven insights, and performance evaluation.
+**StratsLab** is an AI-powered trading strategy backtesting platform designed to analyze, test, and optimize trading strategies with advanced machine learning capabilities. The platform provides a comprehensive environment for strategy development, backtesting execution, and performance analysis using a microservices architecture.
 
-## Overview
+## 🚀 Overview
 
-stratslab is a comprehensive backtesting framework that combines machine learning capabilities with quantitative analysis to evaluate and optimize trading strategies. The platform is built as a microservices architecture designed for Kubernetes deployment, enabling scalable strategy analysis and AI-powered decision making.
+StratsLab combines cutting-edge AI technology with robust backtesting infrastructure to provide traders and quants with a powerful tool for strategy development. The platform is built with a microservices architecture, deployed on Kubernetes, enabling scalable and reliable performance.
 
-## Architecture
+### Key Features
 
-The project consists of multiple distributed services:
+- **AI Integration**: Leverages machine learning models for strategy optimization and market analysis
+- **Backtesting Engine**: High-performance backtesting service that simulates trading strategies against historical data
+- **Microservices Architecture**: Scalable services deployed on Kubernetes
+- **RESTful API**: FastAPI-based REST API for seamless integration
+- **Real-time Analysis**: Process and analyze trading strategies in real-time
+- **Strategy Management**: Create, test, and manage multiple trading strategies
+- **Authentication & Security**: JWT-based auth with middleware for CORS, request counting, and security headers
 
-### API Service (`stratslabapi`)
-- **FastAPI-based REST API** - Main backend service for strategy management and backtesting requests
-- **Authentication & Security** - JWT-based auth with middleware for CORS, request counting, and security headers
-- **Database Layer** - SQLAlchemy ORM with repository pattern for data persistence
-- **Dependency Injection** - FastAPI's built-in DI system for managing service dependencies
+## 🏗️ Architecture
 
-### AI Service (Coming Soon)
-- LLM/ML model integration for strategy analysis and optimization recommendations
-- Feature engineering and signal processing
-- Pattern recognition in historical data
+StratsLab is built using a microservices architecture with the following core components:
 
-### Backtesting Service (Coming Soon)
-- Distributed job-based system for running strategy backtests
-- Performance metrics calculation (Sharpe ratio, drawdown, returns, etc.)
-- Historical data processing and simulation
-- Queue-based job management for scalability
+### Core Services
 
-## Project Structure
+1. **API Service (stratslabapi)**
+   - FastAPI-based REST API for strategy management and backtesting requests
+   - Authentication and authorization
+   - Strategy CRUD operations
+   - Endpoints for backtesting requests
+   - Database layer with SQLAlchemy ORM and repository pattern
 
-```
-stratslabapi/
-├── apps/              # Application initialization (FastAPI setup)
-├── core/              # Core configuration (settings, environment)
-├── dependencies/      # FastAPI dependency injection (auth, etc.)
-├── middlewares/       # HTTP middleware (CORS, security, metrics)
-├── repositories/      # Data access layer (models, ORM)
-├── routers/           # API endpoints
-├── schemas/           # Pydantic request/response models
-├── helpers/           # Utility functions (JWT, hashing, validation)
-├── utils/             # Compatibility and helper utilities
-└── web_servers/       # Web server configuration
-```
+2. **AI Service** (Coming Soon)
+   - Machine learning model serving
+   - Strategy optimization algorithms
+   - Predictive analytics for market trends
+   - Pattern recognition and signal generation
+   - LLM/ML model integration for strategy analysis
 
-## Getting Started
+3. **Backtesting Service** (Coming Soon)
+   - Job-based backtesting execution
+   - Historical data processing
+   - Performance metrics calculation (Sharpe ratio, drawdown, returns, etc.)
+   - Result aggregation and reporting
+   - Queue-based job management for scalability
+
+4. **Kubernetes Infrastructure**
+   - Container orchestration
+   - Service discovery and load balancing
+   - Auto-scaling capabilities
+   - High availability and fault tolerance
+
+## 🛠️ Technology Stack
+
+- **Backend Framework**: FastAPI (Python 3.12+)
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Authentication**: JWT with python-jose
+- **API Documentation**: OpenAPI/Swagger
+- **Data Validation**: Pydantic
+- **Containerization**: Docker & Kubernetes
+- **Package Management**: Poetry
+- **Database Migrations**: Alembic
+
+## 📦 Installation
 
 ### Prerequisites
-- Python 3.x (see `.python-version`)
-- Poetry for dependency management
+
+- Python 3.12 or higher
+- Poetry (Python package manager)
+- PostgreSQL database
+- Docker (optional, for containerization)
 - Kubernetes cluster (for production deployment)
 
-### Installation
+### Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Amantsehay/stratslab.git
+   cd stratslab
+   ```
+
+2. **Install dependencies**
+   ```bash
+   poetry install
+   ```
+
+3. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+4. **Run database migrations**
+   ```bash
+   poetry run alembic upgrade head
+   ```
+
+5. **Start the development server**
+   ```bash
+   poetry run uvicorn stratslabapi.web_servers.asgi:app --reload
+   ```
+
+## 🚦 Usage
+
+### Running the API Server
 
 ```bash
-# Install dependencies
-poetry install
-
-# Copy environment template
-cp .env.example .env
-
-# Run the API service
-poetry run python -m stratslabapi
+poetry run uvicorn stratslabapi.web_servers.asgi:app --host 0.0.0.0 --port 8000
 ```
 
-### Environment Configuration
-See `.env.example` for required environment variables (API keys, database URLs, etc.)
+### API Documentation
 
-## Services Overview
+Once the server is running, access the API documentation at:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
 
-### Development Workflow
-- Run API service locally for development and testing
-- Services will be containerized and orchestrated with Kubernetes in production
+## 📁 Project Structure
 
-### Deployment
-Services are designed to run in Kubernetes:
-- **API Service** - REST API container
-- **AI Service** - ML/LLM processing service
-- **Backtesting Service** - Job-based backtest runner with work queue
+```
+stratslab/
+├── stratslabapi/           # Main application package
+│   ├── apps/              # Application configurations (FastAPI)
+│   ├── core/              # Core settings and configurations
+│   ├── dependencies/      # Dependency injection modules
+│   ├── helpers/           # Helper utilities (JWT, hashing, etc.)
+│   ├── middlewares/       # Custom middleware (CORS, security, metrics)
+│   ├── mixins/            # Reusable class mixins
+│   ├── repositories/      # Database repositories and models
+│   ├── routers/           # API route handlers
+│   ├── schemas/           # Pydantic schemas for validation
+│   ├── utils/             # Utility functions and compatibility
+│   └── web_servers/       # ASGI/WSGI server configurations
+├── static/                # Static files
+├── templates/             # HTML templates
+├── tests/                 # Test suite
+├── pyproject.toml         # Project dependencies and configuration
+├── poetry.lock            # Locked dependency versions
+├── .env.example           # Example environment variables
+├── .gitignore             # Git ignore rules
+└── README.md              # This file
+```
 
-## Tech Stack
+## 🔧 Development
 
-- **Framework**: FastAPI
-- **ORM**: SQLAlchemy
-- **Data Validation**: Pydantic
-- **Auth**: JWT
-- **Package Manager**: Poetry
-- **Deployment**: Kubernetes
+### Running Tests
 
-## License
+```bash
+poetry run pytest
+```
 
-See LICENSE file for details.
+### Code Formatting
+
+```bash
+poetry run black .
+poetry run isort .
+```
+
+### Type Checking
+
+```bash
+poetry run mypy stratslabapi
+```
+
+## 🐳 Docker & Kubernetes Deployment
+
+### Building Docker Image
+
+```bash
+docker build -t stratslab:latest .
+```
+
+### Kubernetes Deployment
+
+Deploy to your Kubernetes cluster using the provided manifests:
+
+```bash
+kubectl apply -f k8s/
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👤 Author
+
+**Amantsehay**
+- Email: amanueltsehay11@gmail.com
+- GitHub: [@Amantsehay](https://github.com/Amantsehay)
+
+## 📞 Support
+
+For support, email amanueltsehay11@gmail.com or open an issue in the GitHub repository.
+
+## 🗺️ Roadmap
+
+- [ ] Enhanced AI model integration
+- [ ] Real-time strategy execution
+- [ ] Advanced visualization dashboard
+- [ ] Multi-exchange support
+- [ ] Portfolio optimization features
+- [ ] Risk management tools
+- [ ] Cloud deployment templates
+
+---
+
+**Note**: This is an active development project. Features and architecture may evolve as the platform matures.
