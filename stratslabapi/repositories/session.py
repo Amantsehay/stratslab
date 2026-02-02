@@ -20,7 +20,6 @@ class SessionManager:
             max_overflow=settings.pool_max_overflow,
             pool_timeout=settings.pool_timeout,
             pool_recycle=settings.pool_recycle,
-            
             echo=False
         )
         self.session_maker = async_sessionmaker(
