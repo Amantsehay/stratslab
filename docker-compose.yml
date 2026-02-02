@@ -35,6 +35,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-stratslab_dev}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-stratslab_dev}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
 
