@@ -1,6 +1,6 @@
 # StratsLab
 
-**StratsLab** is an AI-integrated trading strategy backtesting platform designed to analyze, test, and optimize trading strategies with advanced machine learning capabilities. The platform provides a comprehensive environment for strategy development, backtesting execution, and performance analysis.
+**StratsLab** is an AI-powered trading strategy backtesting platform designed to analyze, test, and optimize trading strategies with advanced machine learning capabilities. The platform provides a comprehensive environment for strategy development, backtesting execution, and performance analysis using a microservices architecture.
 
 ## 🚀 Overview
 
@@ -11,9 +11,10 @@ StratsLab combines cutting-edge AI technology with robust backtesting infrastruc
 - **AI Integration**: Leverages machine learning models for strategy optimization and market analysis
 - **Backtesting Engine**: High-performance backtesting service that simulates trading strategies against historical data
 - **Microservices Architecture**: Scalable services deployed on Kubernetes
-- **RESTful API**: FastAPI-based API for seamless integration
+- **RESTful API**: FastAPI-based REST API for seamless integration
 - **Real-time Analysis**: Process and analyze trading strategies in real-time
 - **Strategy Management**: Create, test, and manage multiple trading strategies
+- **Authentication & Security**: JWT-based auth with middleware for CORS, request counting, and security headers
 
 ## 🏗️ Architecture
 
@@ -22,22 +23,25 @@ StratsLab is built using a microservices architecture with the following core co
 ### Core Services
 
 1. **API Service (stratslabapi)**
-   - FastAPI-based REST API
-   - Handles authentication and authorization
-   - Manages strategy CRUD operations
-   - Provides endpoints for backtesting requests
+   - FastAPI-based REST API for strategy management and backtesting requests
+   - Authentication and authorization
+   - Strategy CRUD operations
+   - Endpoints for backtesting requests
+   - Database layer with SQLAlchemy ORM and repository pattern
 
-2. **AI Service**
+2. **AI Service** (Coming Soon)
    - Machine learning model serving
    - Strategy optimization algorithms
    - Predictive analytics for market trends
    - Pattern recognition and signal generation
+   - LLM/ML model integration for strategy analysis
 
-3. **Backtesting Service**
+3. **Backtesting Service** (Coming Soon)
    - Job-based backtesting execution
    - Historical data processing
-   - Performance metrics calculation
+   - Performance metrics calculation (Sharpe ratio, drawdown, returns, etc.)
    - Result aggregation and reporting
+   - Queue-based job management for scalability
 
 4. **Kubernetes Infrastructure**
    - Container orchestration
@@ -51,6 +55,7 @@ StratsLab is built using a microservices architecture with the following core co
 - **Database**: PostgreSQL with SQLAlchemy ORM
 - **Authentication**: JWT with python-jose
 - **API Documentation**: OpenAPI/Swagger
+- **Data Validation**: Pydantic
 - **Containerization**: Docker & Kubernetes
 - **Package Management**: Poetry
 - **Database Migrations**: Alembic
@@ -117,13 +122,16 @@ stratslab/
 │   ├── core/              # Core settings and configurations
 │   ├── dependencies/      # Dependency injection modules
 │   ├── helpers/           # Helper utilities (JWT, hashing, etc.)
-│   ├── middlewares/       # Custom middleware (CORS, security, etc.)
+│   ├── middlewares/       # Custom middleware (CORS, security, metrics)
 │   ├── mixins/            # Reusable class mixins
 │   ├── repositories/      # Database repositories and models
 │   ├── routers/           # API route handlers
 │   ├── schemas/           # Pydantic schemas for validation
-│   ├── utils/             # Utility functions
+│   ├── utils/             # Utility functions and compatibility
 │   └── web_servers/       # ASGI/WSGI server configurations
+├── static/                # Static files
+├── templates/             # HTML templates
+├── tests/                 # Test suite
 ├── pyproject.toml         # Project dependencies and configuration
 ├── poetry.lock            # Locked dependency versions
 ├── .env.example           # Example environment variables
