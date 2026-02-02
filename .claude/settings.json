@@ -4,6 +4,7 @@
       "Bash(mkdir:*)",
       "Bash(poetry:*)",
       "Bash(pytest:*)",
+      "Bash(uv:*)",
       "Bash(find:*)",
       "Bash(mv:*)",
       "Bash(grep:*)",

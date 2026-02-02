@@ -24,3 +24,4 @@ Summarize your understanding of the codebase including:
 - Technology stack and dependencies
 - Directory structure and file organization
 - How to run the development server
+README.md
