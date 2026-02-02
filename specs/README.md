@@ -76,7 +76,7 @@ Each spec type has a template available in `.claude/templates/`:
 All specs follow a consistent structure:
 
 ### Metadata
-- Type (feature/chore/bug/refactor/research)
+- Type (features/chores/bugs/refactors/research)
 - Status (planning/in-progress/completed)
 - Created and updated dates
 - Agent name
