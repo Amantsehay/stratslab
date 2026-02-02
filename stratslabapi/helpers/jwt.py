@@ -60,13 +60,13 @@ def verify_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except ExpiredSignatureError as e:
-        # Log the specific error for debugging
-        logger.warning(f"JWT token expired: {e}")
+    except ExpiredSignatureError:
+        # Log that a token has expired without exposing sensitive details
+        logger.warning("JWT token verification failed: token has expired")
         # Return a specific error type for expired tokens to enable better UX
         raise ValueError("expired")
     except JWTError as e:
-        # Log the specific error for debugging
-        logger.warning(f"JWT verification failed: {type(e).__name__}: {e}")
+        # Log the error type for debugging without exposing sensitive token details
+        logger.warning(f"JWT verification failed: {type(e).__name__}")
         # Return a generic error to avoid exposing authentication system details
         raise ValueError("invalid")
