@@ -26,7 +26,7 @@ class User(Base):
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id"), nullable=False)
+    role_id: Mapped[UUID] = mapped_column(ForeignKey("roles.id", ondelete="RESTRICT"), nullable=False)
 
     role: Mapped[Role] = relationship("Role", back_populates="users")
 
