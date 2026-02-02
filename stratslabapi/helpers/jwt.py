@@ -29,7 +29,7 @@ def _validate_secret_key(secret: str) -> str:
 
 SECRET_KEY = _validate_secret_key(settings.secret_key.get_secret_value())
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = getattr(settings, "access_token_expire_minutes", 30)
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
