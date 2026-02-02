@@ -44,24 +44,9 @@ COPY --chown=appuser:appuser pyproject.toml poetry.lock ./
 COPY --chown=appuser:appuser alembic ./alembic
 COPY --chown=appuser:appuser alembic.ini ./
 
-# Create entrypoint script
-RUN echo '#!/bin/bash\n\
-set -e\n\
-\n\
-echo "Waiting for PostgreSQL..."\n\
-while ! pg_isready -h ${POSTGRES_HOST:-postgres} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-postgres}; do\n\
-  sleep 1\n\
-done\n\
-echo "PostgreSQL is ready!"\n\
-\n\
-echo "Running database migrations..."\n\
-poetry run alembic upgrade head\n\
-echo "Migrations completed!"\n\
-\n\
-echo "Starting FastAPI server..."\n\
-exec poetry run uvicorn stratslabapi.web_servers.asgi:app --host 0.0.0.0 --port 8000 --reload\n\
-' > /app/docker-entrypoint.sh && chmod +x /app/docker-entrypoint.sh
-
+# Copy entrypoint script
+COPY --chown=appuser:appuser docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
 # Switch to non-root user
 USER appuser
 
