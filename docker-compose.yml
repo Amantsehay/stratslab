@@ -61,9 +61,9 @@ services:
     volumes:
       # Bind mount for development - enables hot-reload
       - ./stratslabapi:/app/stratslabapi
-      # Alembic for migrations
-      - ./alembic:/app/alembic
-      - ./alembic.ini:/app/alembic.ini
+      # Alembic migrations can be mounted here once initialized in the repo:
+      # - ./alembic:/app/alembic
+      # - ./alembic.ini:/app/alembic.ini
 
     ports:
       - "${API_PORT:-8000}:8000"
