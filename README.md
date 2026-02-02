@@ -106,9 +106,10 @@ Use the convenient helper script for common operations:
 ./scripts/docker.sh logs-db     # PostgreSQL only
 
 # Execute commands in containers
-./scripts/docker.sh exec-api poetry run pytest tests/
 ./scripts/docker.sh exec-db psql -U postgres -d stratslab_dev
 
+# Run tests on the host machine (the tests/ directory is not available in the container)
+poetry run pytest
 # Stop containers
 ./scripts/docker.sh down
 
