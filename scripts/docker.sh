@@ -187,7 +187,7 @@ cleanup() {
     print_warning "This will remove all containers, images, and volumes. This is DESTRUCTIVE!"
     read -p "Are you sure you want to continue? (yes/no) " -r
     echo
-    if [[ $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
+    if [[ $REPLY =~ ^[Yy]([Ee][Ss])?$ ]]; then
         print_info "Removing containers..."
         cd "$PROJECT_ROOT"
         docker-compose down -v
