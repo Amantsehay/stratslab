@@ -1,37 +1,33 @@
-[project]
-name = "stratslab"
-version = "0.1.0"
-description = "Stratslab"
-authors = [
-    {name = "Amantsehay",email = "amanueltsehay11@gmail.com"}
-]
-license = {text = "MIT"}
-readme = "README.md"
-requires-python = ">=3.12,<4.0"
-dependencies = [
-    "fastapi (>=0.121.3,<0.122.0)",
-    "pydantic (>=2.12.4,<3.0.0)",
-    "pydantic-settings (>=2.12.0,<3.0.0)",
-    "cryptography (>=46.0.3,<47.0.0)",
-    "fastapi-pagination (>=0.15.0,<0.16.0)",
-    "aiocache (>=0.12.3,<0.13.0)",
-    "fastapi-storages (>=0.3.0,<0.4.0)",
-    "sqlalchemy (>=2.0.44,<3.0.0)",
-    "uuid (>=1.30,<2.0)",
-    "asyncpg (>=0.30.0,<0.31.0)",
-    "pydash (>=8.0.5,<9.0.0)",
-    "alembic (>=1.14.0,<2.0.0)",
-    "python-jose[cryptography] (>=3.3.0,<4.0.0)",
-    "passlib[bcrypt] (>=1.7.4,<2.0.0)",
-    "python-multipart (>=0.0.18,<0.1.0)"
-]
-
-
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[dependency-groups]
-dev = [
-    "uvicorn[standard] (>=0.38.0,<0.39.0)"
-]
+[tool.poetry]
+name = "stratslab"
+version = "0.1.0"
+description = "Stratslab"
+authors = ["Amantsehay <amanueltsehay11@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "stratslabapi"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = ">=0.121.3,<0.122.0"
+pydantic = ">=2.12.4,<3.0.0"
+pydantic-settings = ">=2.12.0,<3.0.0"
+cryptography = ">=46.0.3,<47.0.0"
+fastapi-pagination = ">=0.15.0,<0.16.0"
+aiocache = ">=0.12.3,<0.13.0"
+fastapi-storages = ">=0.3.0,<0.4.0"
+sqlalchemy = ">=2.0.44,<3.0.0"
+uuid = ">=1.30,<2.0"
+asyncpg = ">=0.30.0,<0.31.0"
+pydash = ">=8.0.5,<9.0.0"
+alembic = ">=1.14.0,<2.0.0"
+python-jose = {version = ">=3.3.0,<4.0.0", extras = ["cryptography"]}
+passlib = {version = ">=1.7.4,<2.0.0", extras = ["bcrypt"]}
+python-multipart = ">=0.0.18,<0.1.0"
+
+[tool.poetry.group.dev.dependencies]
+uvicorn = {version = ">=0.38.0,<0.39.0", extras = ["standard"]}
