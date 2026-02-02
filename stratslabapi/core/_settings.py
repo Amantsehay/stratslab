@@ -14,7 +14,9 @@ from pydantic_settings import (
     SettingsConfigDict,
 )
 
-def _parse_list(value: str) -> list[str]:
+def _parse_list(value: str | None) -> list[str]:
+    if not value:
+        return []
     return [str(x).strip() for x in value.split(",")]
 
 def _fix_postgres_url(url: str, /, *, scheme: str = "postgresql+asyncpg") -> str:
@@ -30,18 +32,25 @@ class _EnvSource(EnvSettingsSource):
     ) -> Any:
         if get_origin(field.annotation) is list:
             return _parse_list(value)
-        if field_name == "database_url":
+        if field_name == "database_url" and value:
             return PostgresDsn(_fix_postgres_url(value))
         return super().prepare_field_value(field_name, field, value, value_is_complex)
     
     
 class Settings(BaseSettings):
-    allows_origins: list[str]
-    database_url: PostgresDsn
+    allows_origins: list[str] = []
+    database_url: PostgresDsn | None = None
     project_root: Path = Path(__file__).parent.parent.parent.resolve()
-    trusted_host: str
+    trusted_host: str = "localhost"
     static: Path = Path("static")
-    secret_key: SecretStr
+    secret_key: SecretStr = SecretStr("default-secret-key-change-in-production")
+
+    # PostgreSQL connection components for constructing database_url
+    postgres_db: str = "stratslab_dev"
+    postgres_user: str = "postgres"
+    postgres_password: str = "postgres"
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
     
     pool_max_overflow: int = 10
     pool_size: int = 5
