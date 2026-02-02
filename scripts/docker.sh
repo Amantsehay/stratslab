@@ -26,6 +26,72 @@ print_warning() {
     echo -e "${YELLOW}⚠${NC} $1"
 }
 
+# Generate a secure random SECRET_KEY
+generate_secret_key() {
+    python3 -c "import secrets; print(secrets.token_urlsafe(32))" 2>/dev/null || \
+    openssl rand -base64 32 2>/dev/null || \
+    head -c 32 /dev/urandom | base64
+}
+
+# Validate .env file for insecure configurations
+validate_env_file() {
+    local env_file="$1"
+    if [ ! -f "$env_file" ]; then
+        return 0
+    fi
+    
+    # Check for placeholder SECRET_KEY values
+    if grep -q "SECRET_KEY=CHANGE-ME-INSECURE-PLACEHOLDER" "$env_file" 2>/dev/null; then
+        print_error "SECURITY WARNING: Your .env file contains an insecure placeholder SECRET_KEY!"
+        print_error "Please update SECRET_KEY in .env with a secure random value."
+        print_info "Generate a new key with: python3 -c \"import secrets; print(secrets.token_urlsafe(32))\""
+        exit 1
+    fi
+    
+    # Check for other common insecure placeholders
+    if grep -E "SECRET_KEY=.*(your-secret-key-here|change-me|placeholder|example|test|REPLACE|TODO)" "$env_file" 2>/dev/null; then
+        print_error "SECURITY WARNING: Your .env file appears to contain a placeholder SECRET_KEY!"
+        print_error "Please update SECRET_KEY in .env with a secure random value."
+        print_info "Generate a new key with: python3 -c \"import secrets; print(secrets.token_urlsafe(32))\""
+        exit 1
+    fi
+}
+
+# Create .env file from template with auto-generated SECRET_KEY
+create_env_from_template() {
+    local template_file="$PROJECT_ROOT/.env.docker.example"
+    local env_file="$PROJECT_ROOT/.env"
+    
+    if [ ! -f "$template_file" ]; then
+        print_error "Template file .env.docker.example not found!"
+        exit 1
+    fi
+    
+    print_warning ".env file not found. Creating from .env.docker.example..."
+    
+    # Generate a secure random SECRET_KEY
+    local secret_key=$(generate_secret_key)
+    if [ -z "$secret_key" ]; then
+        print_error "Failed to generate SECRET_KEY. Please create .env manually."
+        exit 1
+    fi
+    
+    # Copy template and replace placeholder SECRET_KEY with generated one
+    cp "$template_file" "$env_file"
+    
+    # Replace the placeholder SECRET_KEY with the generated one
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        sed -i '' "s/SECRET_KEY=CHANGE-ME-INSECURE-PLACEHOLDER/SECRET_KEY=$secret_key/" "$env_file"
+    else
+        # Linux
+        sed -i "s/SECRET_KEY=CHANGE-ME-INSECURE-PLACEHOLDER/SECRET_KEY=$secret_key/" "$env_file"
+    fi
+    
+    print_info "Created .env file with auto-generated SECRET_KEY"
+    print_warning "Review and update other settings in .env as needed (database passwords, ports, etc.)"
+}
+
 # Check if Docker is running
 check_docker() {
     if ! docker ps > /dev/null 2>&1; then
@@ -82,10 +148,9 @@ EOF
 start_foreground() {
     check_docker
     if [ ! -f "$PROJECT_ROOT/.env" ]; then
-        print_warning ".env file not found. Creating from .env.docker.example..."
-        cp "$PROJECT_ROOT/.env.docker.example" "$PROJECT_ROOT/.env"
-        print_warning "Please update .env with your configuration."
+        create_env_from_template
     fi
+    validate_env_file "$PROJECT_ROOT/.env"
     print_info "Starting containers in foreground..."
     cd "$PROJECT_ROOT"
     docker-compose up
@@ -95,10 +160,9 @@ start_foreground() {
 start_background() {
     check_docker
     if [ ! -f "$PROJECT_ROOT/.env" ]; then
-        print_warning ".env file not found. Creating from .env.docker.example..."
-        cp "$PROJECT_ROOT/.env.docker.example" "$PROJECT_ROOT/.env"
-        print_warning "Please update .env with your configuration."
+        create_env_from_template
     fi
+    validate_env_file "$PROJECT_ROOT/.env"
     print_info "Starting containers in background..."
     cd "$PROJECT_ROOT"
     docker-compose up -d
