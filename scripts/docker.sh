@@ -70,7 +70,8 @@ create_env_from_template() {
     print_warning ".env file not found. Creating from .env.docker.example..."
     
     # Generate a secure random SECRET_KEY
-    local secret_key=$(generate_secret_key)
+    local secret_key
+    secret_key=$(generate_secret_key)
     if [ -z "$secret_key" ]; then
         print_error "Failed to generate SECRET_KEY. Please create .env manually."
         exit 1
