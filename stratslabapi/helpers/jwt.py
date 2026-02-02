@@ -1,7 +1,11 @@
+import logging
 from datetime import datetime, timedelta, UTC
 from jose import JWTError, jwt
+from jose.exceptions import ExpiredSignatureError
 
 from stratslabapi.core import settings
+
+logger = logging.getLogger(__name__)
 
 
 def _validate_secret_key(secret: str) -> str:
@@ -41,9 +45,28 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
 
 
 def verify_token(token: str) -> dict:
-    """Verify and decode JWT token"""
+    """
+    Verify and decode JWT token.
+    
+    Args:
+        token: JWT token string to verify
+        
+    Returns:
+        Decoded token payload
+        
+    Raises:
+        ValueError: With 'expired' for expired tokens, 'invalid' for other errors
+    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return payload
-    except JWTError:
-        raise ValueError("Invalid token")
+    except ExpiredSignatureError:
+        # Log that a token has expired without exposing sensitive details
+        logger.warning("JWT token verification failed: token has expired")
+        # Return a specific error type for expired tokens to enable better UX
+        raise ValueError("expired")
+    except JWTError as e:
+        # Log the error type for debugging without exposing sensitive token details
+        logger.warning(f"JWT verification failed: {type(e).__name__}")
+        # Return a generic error to avoid exposing authentication system details
+        raise ValueError("invalid")

@@ -27,13 +27,21 @@ async def get_current_user(
         if user_id is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
+                detail="Could not validate credentials"
             )
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )
+    except ValueError as e:
+        # Differentiate between expired and invalid tokens
+        if str(e) == "expired":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired"
+            )
+        else:
+            # Generic message for security
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials"
+            )
 
     user = await User.get_or_none(session, user_id)
     if user is None:
