@@ -14,7 +14,7 @@ from stratslabapi.helpers.hashers import PasswordHasherBase, hasher
 
 
 class BaseModel(BaseModelOrig):
-    hasher: ClassVar[PassowrdHasherBase] = hasher
+    hasher: ClassVar[PasswordHasherBase] = hasher
     encryptor: ClassVar[Fernet] = settings.fernet
     
     model_config = ConfigDict(

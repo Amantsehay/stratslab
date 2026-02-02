@@ -1,9 +1,7 @@
 from contextlib import asynccontextmanager
-from re import I
 from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
 import mimetypes
 from collections.abc import AsyncGenerator
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -28,7 +26,7 @@ mimetypes.add_type("image/webp", ".webp")
 
 
 class StratslabAPI(FastAPI):
-    
+
     BOTS_FORBIDDEN_URLS: ClassVar[tuple[str, ...]] = (
         "/favicon.ico",
         "/openapi.json",
@@ -40,15 +38,23 @@ class StratslabAPI(FastAPI):
         "/api/",
         "/s"
     )
-    
-    def __init__(self, **kwargs: Any) -> None: 
-        
+
+    @property
+    def _description(self) -> str:
+        """API description"""
+        return "Stratslab API - Strategy Analysis Platform"
+
+    def __init__(self, **kwargs: Any) -> None:
+
         kwargs.setdefault("docs_url", None)
         kwargs.setdefault("redoc_url", None)
         kwargs.setdefault("lifespan", self._lifespan)
         kwargs.setdefault("version", __version__)
         kwargs.setdefault("description", self._description)
         super().__init__(**kwargs)
+        self._setup_middlewares()
+        self._setup_routers()
+        add_pagination(self)
         
     @asynccontextmanager
     async def _lifespan(self, _: Self) -> AsyncGenerator[None, Any]:
@@ -70,8 +76,8 @@ class StratslabAPI(FastAPI):
         if feature_flags.count_api_requests:
             self.add_middleware(APIRequestCounter)
     def _setup_routers(self) -> None:
-        from stratslabapi.routers import api_router, graphql_router, rout_router
-        
+        from stratslabapi.routers import api_router, graphql_router, root_router
+
         for router in [api_router, graphql_router, root_router]:
             self.include_router(router)
     
