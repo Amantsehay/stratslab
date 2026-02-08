@@ -15,7 +15,7 @@ class SessionManager:
     def initialize(self) -> None:
         """Initialize async engine with connection pooling from settings"""
         self.engine = create_async_engine(
-            settings.database_url,
+            str(settings.database_url),
             pool_size=settings.pool_size,
             max_overflow=settings.pool_max_overflow,
             pool_timeout=settings.pool_timeout,

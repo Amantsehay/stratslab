@@ -51,11 +51,23 @@ class Settings(BaseSettings):
     postgres_password: str = "postgres"
     postgres_host: str = "localhost"
     postgres_port: int = 5432
-    
+
     pool_max_overflow: int = 10
     pool_size: int = 5
     pool_timeout: int = 30
-    pool_recycle: int = -1 
+    pool_recycle: int = -1
+
+    # API Documentation Configuration
+    docs_url: str = "/api-docs"
+    redoc_url: str = "/redoc"
+    openapi_url: str = "/openapi.json"
+    openapi_tags: list[dict[str, Any]] = Field(
+        default_factory=lambda: [
+            {"name": "root", "description": "Root and health endpoints"},
+            {"name": "api", "description": "Main API v1 endpoints"},
+            {"name": "graphql", "description": "GraphQL endpoints"},
+        ]
+    ) 
     
     @cached_property
     def fernet(self) -> Fernet:

@@ -46,11 +46,13 @@ class StratslabAPI(FastAPI):
 
     def __init__(self, **kwargs: Any) -> None:
 
-        kwargs.setdefault("docs_url", None)
-        kwargs.setdefault("redoc_url", None)
+        kwargs.setdefault("docs_url", settings.docs_url)
+        kwargs.setdefault("redoc_url", settings.redoc_url)
+        kwargs.setdefault("openapi_url", settings.openapi_url)
         kwargs.setdefault("lifespan", self._lifespan)
         kwargs.setdefault("version", __version__)
         kwargs.setdefault("description", self._description)
+        kwargs.setdefault("openapi_tags", settings.openapi_tags)
         super().__init__(**kwargs)
         self._setup_middlewares()
         self._setup_routers()
