@@ -1,6 +1,7 @@
 from base64 import urlsafe_b64encode
 from functools import cached_property, lru_cache 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Literal, get_args, get_origin
 from urllib.parse import urlparse
@@ -21,11 +22,14 @@ def _parse_list(value: str | None) -> list[str]:
     return [str(x).strip() for x in value.split(",")]
 
 def _parse_json(value: str | None) -> Any:
+    """Parse JSON string, returning None for empty/invalid input."""
     if not value:
         return None
     try:
         return json.loads(value)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as e:
+        # Log the error but return None to allow fallback to default value
+        logging.warning(f"Failed to parse JSON from env variable: {e}")
         return None
 
 def _fix_postgres_url(url: str, /, *, scheme: str = "postgresql+asyncpg") -> str:
@@ -46,7 +50,8 @@ class _EnvSource(EnvSettingsSource):
                 return _parse_list(value)
             else:
                 # For complex list types (e.g., list[dict[str, Any]]), parse as JSON
-                return _parse_json(value) or super().prepare_field_value(field_name, field, value, value_is_complex)
+                parsed = _parse_json(value)
+                return parsed if parsed is not None else super().prepare_field_value(field_name, field, value, value_is_complex)
         if field_name == "database_url" and value:
             return PostgresDsn(_fix_postgres_url(value))
         return super().prepare_field_value(field_name, field, value, value_is_complex)
