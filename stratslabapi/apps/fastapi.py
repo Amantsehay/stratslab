@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self
 import mimetypes
 from collections.abc import AsyncGenerator
 
@@ -27,17 +27,20 @@ mimetypes.add_type("image/webp", ".webp")
 
 class StratslabAPI(FastAPI):
 
-    BOTS_FORBIDDEN_URLS: ClassVar[tuple[str, ...]] = (
-        "/favicon.ico",
-        "/openapi.json",
-        "/robots.txt",
-        "/sitemap.xml",
-        "/static",
-        "/health",
-        "/logout",
-        "/api/",
-        "/s"
-    )
+    @property
+    def BOTS_FORBIDDEN_URLS(self) -> tuple[str, ...]:
+        """URLs that should be forbidden for bots. Includes the dynamic OpenAPI URL from settings."""
+        return (
+            "/favicon.ico",
+            settings.openapi_url,
+            "/robots.txt",
+            "/sitemap.xml",
+            "/static",
+            "/health",
+            "/logout",
+            "/api/",
+            "/s"
+        )
 
     @property
     def _description(self) -> str:
