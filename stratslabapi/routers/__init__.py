@@ -29,26 +29,6 @@ async def health_check() -> dict[str, str]:
 
 
 # API v1 router - main API endpoints (to be implemented)
-api_router = APIRouter(
-    prefix="/api/v1",
-    tags=["api"],
-    responses={
-        404: {"description": "Not found"},
-        500: {"description": "Internal server error"},
-    },
-)
-
-
-# GraphQL router - GraphQL endpoint (to be implemented)
-graphql_router = APIRouter(
-    prefix="/graphql",
-    tags=["graphql"],
-    responses={
-        400: {"description": "Bad request"},
-        500: {"description": "Internal server error"},
-    },
-)
-# API v1 router - main API endpoints (to be implemented)
 api_router = APIRouter(prefix="/api/v1", tags=["api"])
 
 
