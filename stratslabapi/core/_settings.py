@@ -52,6 +52,7 @@ class Settings(BaseSettings):
     postgres_host: str = "localhost"
     postgres_port: int = 5432
 
+    
     pool_max_overflow: int = 10
     pool_size: int = 5
     pool_timeout: int = 30

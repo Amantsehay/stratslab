@@ -48,6 +48,12 @@ graphql_router = APIRouter(
         500: {"description": "Internal server error"},
     },
 )
+# API v1 router - main API endpoints (to be implemented)
+api_router = APIRouter(prefix="/api/v1", tags=["api"])
+
+
+# GraphQL router - GraphQL endpoint (to be implemented)
+graphql_router = APIRouter(prefix="/graphql", tags=["graphql"])
 
 
 __all__ = [
