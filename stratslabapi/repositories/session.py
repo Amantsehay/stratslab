@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+from urllib.parse import quote_plus
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine, async_sessionmaker
 
 from stratslabapi.core import settings
@@ -9,13 +10,16 @@ def _get_database_url() -> str:
     """Get the database URL from settings.
     
     If database_url is not set, constructs URL from postgres_* components.
-    Raises ValueError if database_url is None and cannot be constructed.
+    Properly encodes credentials to handle special characters.
     """
     if settings.database_url:
         return str(settings.database_url)
     
     # Build URL from components if database_url is not set
-    return f"postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_password}@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
+    # URL-encode username and password to handle special characters
+    encoded_user = quote_plus(settings.postgres_user)
+    encoded_password = quote_plus(settings.postgres_password)
+    return f"postgresql+asyncpg://{encoded_user}:{encoded_password}@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
 
 
 class SessionManager:
