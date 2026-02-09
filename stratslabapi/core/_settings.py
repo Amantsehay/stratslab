@@ -5,7 +5,7 @@ from typing import Any, Literal, get_origin
 from urllib.parse import urlparse
 
 from cryptography.fernet import Fernet
-from pydantic import BaseModel, Field, HttpUrl, PostgresDsn, RedisDsn, SecretStr
+from pydantic import BaseModel, Field, HttpUrl, PostgresDsn, RedisDsn, SecretStr, field_validator
 from pydantic.fields import FieldInfo
 from pydantic_settings import (
     BaseSettings,
@@ -59,9 +59,9 @@ class Settings(BaseSettings):
     pool_recycle: int = -1
 
     # API Documentation Configuration
-    docs_url: str = "/api-docs"
-    redoc_url: str = "/redoc"
-    openapi_url: str = "/openapi.json"
+    docs_url: str | None = "/api-docs"
+    redoc_url: str | None = "/redoc"
+    openapi_url: str | None = "/openapi.json"
     openapi_tags: list[dict[str, Any]] = Field(
         default_factory=lambda: [
             {"name": "root", "description": "Root and health endpoints"},
@@ -69,6 +69,18 @@ class Settings(BaseSettings):
             {"name": "graphql", "description": "GraphQL endpoints"},
         ]
     ) 
+    
+    @field_validator("docs_url", "redoc_url", "openapi_url", mode="before")
+    @classmethod
+    def normalize_empty_to_none(cls, v: Any) -> str | None:
+        """Normalize empty strings to None for API documentation URLs.
+        
+        This ensures that setting these values to empty strings will disable
+        the documentation endpoints, which is the expected FastAPI behavior.
+        """
+        if v == "":
+            return None
+        return v
     
     @cached_property
     def fernet(self) -> Fernet:
