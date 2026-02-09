@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self
 import mimetypes
 from collections.abc import AsyncGenerator
 
@@ -27,17 +27,20 @@ mimetypes.add_type("image/webp", ".webp")
 
 class StratslabAPI(FastAPI):
 
-    BOTS_FORBIDDEN_URLS: ClassVar[tuple[str, ...]] = (
-        "/favicon.ico",
-        "/openapi.json",
-        "/robots.txt",
-        "/sitemap.xml",
-        "/static",
-        "/health",
-        "/logout",
-        "/api/",
-        "/s"
-    )
+    @property
+    def BOTS_FORBIDDEN_URLS(self) -> tuple[str, ...]:
+        """URLs that should be forbidden for bots. Includes the dynamic OpenAPI URL from settings."""
+        return (
+            "/favicon.ico",
+            settings.openapi_url,
+            "/robots.txt",
+            "/sitemap.xml",
+            "/static",
+            "/health",
+            "/logout",
+            "/api/",
+            "/s"
+        )
 
     @property
     def _description(self) -> str:
@@ -46,11 +49,13 @@ class StratslabAPI(FastAPI):
 
     def __init__(self, **kwargs: Any) -> None:
 
-        kwargs.setdefault("docs_url", None)
-        kwargs.setdefault("redoc_url", None)
+        kwargs.setdefault("docs_url", settings.docs_url)
+        kwargs.setdefault("redoc_url", settings.redoc_url)
+        kwargs.setdefault("openapi_url", settings.openapi_url)
         kwargs.setdefault("lifespan", self._lifespan)
         kwargs.setdefault("version", __version__)
         kwargs.setdefault("description", self._description)
+        kwargs.setdefault("openapi_tags", settings.openapi_tags)
         super().__init__(**kwargs)
         self._setup_middlewares()
         self._setup_routers()

@@ -11,12 +11,43 @@ from fastapi import APIRouter
 root_router = APIRouter(tags=["root"])
 
 
+@root_router.get(
+    "/health",
+    summary="Health Check",
+    description="Returns the health status of the API",
+    tags=["root"],
+    response_description="Health status of the API",
+)
+async def health_check() -> dict[str, str]:
+    """
+    Health check endpoint for monitoring API availability.
+
+    Returns:
+        dict: A dictionary with status "healthy" if the API is running correctly
+    """
+    return {"status": "healthy"}
+
+
 # API v1 router - main API endpoints (to be implemented)
-api_router = APIRouter(prefix="/api/v1", tags=["api"])
+api_router = APIRouter(
+    prefix="/api/v1",
+    tags=["api"],
+    responses={
+        404: {"description": "Not found"},
+        500: {"description": "Internal server error"},
+    },
+)
 
 
 # GraphQL router - GraphQL endpoint (to be implemented)
-graphql_router = APIRouter(prefix="/graphql", tags=["graphql"])
+graphql_router = APIRouter(
+    prefix="/graphql",
+    tags=["graphql"],
+    responses={
+        400: {"description": "Bad request"},
+        500: {"description": "Internal server error"},
+    },
+)
 
 
 __all__ = [
