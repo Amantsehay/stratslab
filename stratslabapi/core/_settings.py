@@ -1,7 +1,9 @@
 from base64 import urlsafe_b64encode
 from functools import cached_property, lru_cache 
+import json
+import logging
 from pathlib import Path
-from typing import Any, Literal, get_origin
+from typing import Any, Literal, get_args, get_origin
 from urllib.parse import urlparse
 
 from cryptography.fernet import Fernet
@@ -19,6 +21,17 @@ def _parse_list(value: str | None) -> list[str]:
         return []
     return [str(x).strip() for x in value.split(",")]
 
+def _parse_json(value: str | None, field_name: str = "unknown") -> Any:
+    """Parse JSON string, returning None for empty/invalid input."""
+    if not value:
+        return None
+    try:
+        return json.loads(value)
+    except json.JSONDecodeError as e:
+        # Log the error but return None to allow fallback to default value
+        logging.warning(f"Failed to parse JSON for field '{field_name}' from env variable: {e}")
+        return None
+
 def _fix_postgres_url(url: str, /, *, scheme: str = "postgresql+asyncpg") -> str:
     return urlparse(url)._replace(scheme=scheme).geturl()
 
@@ -30,8 +43,17 @@ class _EnvSource(EnvSettingsSource):
         value: Any,
         value_is_complex: bool
     ) -> Any:
+        # Only apply CSV parsing to list[str] fields
         if get_origin(field.annotation) is list:
-            return _parse_list(value)
+            args = get_args(field.annotation)
+            if args and args[0] is str:
+                return _parse_list(value)
+            else:
+                # For complex list types (e.g., list[dict[str, Any]]), parse as JSON
+                parsed = _parse_json(value, field_name)
+                if parsed is not None:
+                    return parsed
+                return super().prepare_field_value(field_name, field, value, value_is_complex)
         if field_name == "database_url" and value:
             return PostgresDsn(_fix_postgres_url(value))
         return super().prepare_field_value(field_name, field, value, value_is_complex)
