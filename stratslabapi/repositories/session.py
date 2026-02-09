@@ -5,6 +5,19 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engin
 from stratslabapi.core import settings
 
 
+def _get_database_url() -> str:
+    """Get the database URL from settings.
+    
+    If database_url is not set, constructs URL from postgres_* components.
+    Raises ValueError if database_url is None and cannot be constructed.
+    """
+    if settings.database_url:
+        return str(settings.database_url)
+    
+    # Build URL from components if database_url is not set
+    return f"postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_password}@{settings.postgres_host}:{settings.postgres_port}/{settings.postgres_db}"
+
+
 class SessionManager:
     """Manages database connections with async SQLAlchemy engine"""
 
@@ -15,7 +28,7 @@ class SessionManager:
     def initialize(self) -> None:
         """Initialize async engine with connection pooling from settings"""
         self.engine = create_async_engine(
-            str(settings.database_url),
+            _get_database_url(),
             pool_size=settings.pool_size,
             max_overflow=settings.pool_max_overflow,
             pool_timeout=settings.pool_timeout,
