@@ -21,7 +21,7 @@ def _parse_list(value: str | None) -> list[str]:
         return []
     return [str(x).strip() for x in value.split(",")]
 
-def _parse_json(value: str | None) -> Any:
+def _parse_json(value: str | None, field_name: str = "unknown") -> Any:
     """Parse JSON string, returning None for empty/invalid input."""
     if not value:
         return None
@@ -29,7 +29,7 @@ def _parse_json(value: str | None) -> Any:
         return json.loads(value)
     except json.JSONDecodeError as e:
         # Log the error but return None to allow fallback to default value
-        logging.warning(f"Failed to parse JSON from env variable: {e}")
+        logging.warning(f"Failed to parse JSON for field '{field_name}' from env variable: {e}")
         return None
 
 def _fix_postgres_url(url: str, /, *, scheme: str = "postgresql+asyncpg") -> str:
@@ -50,8 +50,10 @@ class _EnvSource(EnvSettingsSource):
                 return _parse_list(value)
             else:
                 # For complex list types (e.g., list[dict[str, Any]]), parse as JSON
-                parsed = _parse_json(value)
-                return parsed if parsed is not None else super().prepare_field_value(field_name, field, value, value_is_complex)
+                parsed = _parse_json(value, field_name)
+                if parsed is not None:
+                    return parsed
+                return super().prepare_field_value(field_name, field, value, value_is_complex)
         if field_name == "database_url" and value:
             return PostgresDsn(_fix_postgres_url(value))
         return super().prepare_field_value(field_name, field, value, value_is_complex)
