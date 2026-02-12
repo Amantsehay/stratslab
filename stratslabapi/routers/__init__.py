@@ -50,6 +50,17 @@ graphql_router = APIRouter(
 )
 
 
+# Import and include workflow routers
+from stratslabapi.routers.workflows import router as workflows_router
+from stratslabapi.routers.webhooks import router as webhooks_router
+
+# Add workflows router to main API router
+api_router.include_router(workflows_router)
+
+# Add webhooks router to root (webhooks don't use /api/v1 prefix)
+root_router.include_router(webhooks_router)
+
+
 __all__ = [
     "root_router",
     "api_router",
